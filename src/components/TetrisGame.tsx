@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, ArrowLeft, ArrowRight, ArrowDown, RotateCw } from 'lucide-react';
 
 // --- Constants & Types ---
 
@@ -11,7 +11,7 @@ const TICK_RATE = 1000;
 
 const CHAR_POOL = ['n', 'n', 'o', 'o', 'o', 'd', 'd', 'e', 't']; // Weighted
 const TARGET_WORDS = ['nod', 'to', 'node'];
-const HIGHLIGHT_COLORS = ['#FF1DB0', '#94BCE3', '#9FF63A', '#02F9FF'];
+const HIGHLIGHT_COLORS = ['#8FF1FC', '#FF1DB0', '#A2C6F8', '#9FF63B'];
 
 // Custom Shape Mask (1 = Valid Play Area, 0 = Wall/Empty)
 const GRID_MASK = [
@@ -367,21 +367,22 @@ export default function TetrisGame() {
     for (let y = 0; y < ROWS; y++) {
       for (let x = 0; x < COLS; x++) {
         if (GRID_MASK[y][x] === 1) {
+          // Add slight overlap (0.5px) to prevent sub-pixel gaps between mask rects
           rects.push(
-            `<rect x="${x * BLOCK_SIZE}" y="${y * BLOCK_SIZE}" width="${BLOCK_SIZE}" height="${BLOCK_SIZE}" fill="black" />`
+            `<rect x="${x * BLOCK_SIZE}" y="${y * BLOCK_SIZE}" width="${BLOCK_SIZE + 0.5}" height="${BLOCK_SIZE + 0.5}" fill="black" />`
           );
         }
       }
     }
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${COLS * BLOCK_SIZE}" height="${ROWS * BLOCK_SIZE}" viewBox="0 0 ${COLS * BLOCK_SIZE} ${ROWS * BLOCK_SIZE}">${rects.join('')}</svg>`;
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${COLS * BLOCK_SIZE}" height="${ROWS * BLOCK_SIZE}" viewBox="0 0 ${COLS * BLOCK_SIZE} ${ROWS * BLOCK_SIZE}" shape-rendering="crispEdges">${rects.join('')}</svg>`;
     return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
   }, []);
 
   return (
-    <div className="relative flex flex-col items-center justify-center gap-6">
+    <div className="relative flex flex-col items-center justify-center gap-2">
       
       {/* Target Words Display */}
-      <div className="flex gap-4 mb-2 z-10">
+      <div className="flex gap-4 mb-0 z-10 scale-90 origin-bottom">
         {TARGET_WORDS.map(word => (
           <div 
             key={word}
@@ -398,7 +399,7 @@ export default function TetrisGame() {
       </div>
 
       <div 
-        className="relative"
+        className="relative origin-top scale-[0.80] sm:scale-100"
         style={{ 
           width: `${COLS * BLOCK_SIZE}px`,
           height: `${ROWS * BLOCK_SIZE}px`,
@@ -452,7 +453,7 @@ export default function TetrisGame() {
             >
               {/* Masked Background */}
               <div 
-                className="absolute inset-0 bg-white/60 backdrop-blur-sm"
+                className="absolute inset-0 bg-black"
                 style={{ 
                   maskImage: maskImage,
                   WebkitMaskImage: maskImage,
@@ -469,8 +470,11 @@ export default function TetrisGame() {
               >
                 {/* Title Section */}
                 <div>
-                  <h2 className="text-4xl font-black uppercase tracking-tighter mb-2 text-black">Node To Nod</h2>
-                  <div className="text-[10px] font-bold text-gray-600 leading-tight space-y-0.5">
+                  {gameWon && (
+                    <h3 className="text-sm font-bold text-[#FF1DB0] tracking-widest mb-1">COMPLETE!</h3>
+                  )}
+                  <h2 className="text-4xl font-black uppercase tracking-tighter mb-2 text-white">Node To Nod</h2>
+                  <div className="text-[10px] font-bold text-gray-400 leading-tight space-y-0.5">
                     <p>국민대 AI 디자인 Synapse</p>
                     <p>x</p>
                     <p>홍익대 산업디자인 Cre8</p>
@@ -479,14 +483,14 @@ export default function TetrisGame() {
                 
                 {/* Info Section */}
                 <div className="text-[11px] space-y-1 leading-tight">
-                  <p className="text-black font-medium">서울 중구 을지로 108 2층 페이지 메일</p>
-                  <p className="text-black font-bold">2026. 03.17-.21.</p>
-                  <p className="text-black font-medium">@인스타아이디</p>
+                  <p className="text-white font-medium">서울 중구 을지로 108 2층 페이지 메일</p>
+                  <p className="text-white font-bold">2026.03.17. - 21.</p>
+                  <p className="text-white font-medium">@synapse_kmu</p>
                 </div>
 
                 <button 
                   onClick={resetGame}
-                  className="inline-flex items-center gap-2 px-6 py-2 bg-black text-white text-xs font-bold hover:bg-gray-800 transition-colors rounded-full mt-2"
+                  className="inline-flex items-center gap-2 px-6 py-2 bg-white text-black text-xs font-bold hover:bg-gray-200 transition-colors rounded-full mt-2"
                 >
                   <RefreshCw size={12} />
                   {gameWon ? 'PLAY AGAIN' : 'RETRY'}
@@ -495,6 +499,38 @@ export default function TetrisGame() {
             </motion.div>
           )}
         </AnimatePresence>
+      </div>
+
+      {/* Mobile Controls */}
+      <div className="grid grid-cols-4 gap-3 w-full max-w-[260px] -mt-12 sm:hidden relative z-20">
+        <button 
+          className="aspect-square bg-black text-white rounded-xl flex items-center justify-center active:bg-gray-800 touch-manipulation shadow-sm"
+          onClick={() => move(-1, 0)}
+          aria-label="Left"
+        >
+          <ArrowLeft size={24} />
+        </button>
+        <button 
+          className="aspect-square bg-black text-white rounded-xl flex items-center justify-center active:bg-gray-800 touch-manipulation shadow-sm"
+          onClick={() => move(0, 1)}
+          aria-label="Down"
+        >
+          <ArrowDown size={24} />
+        </button>
+        <button 
+          className="aspect-square bg-black text-white rounded-xl flex items-center justify-center active:bg-gray-800 touch-manipulation shadow-sm"
+          onClick={() => move(1, 0)}
+          aria-label="Right"
+        >
+          <ArrowRight size={24} />
+        </button>
+        <button 
+          className="aspect-square bg-[#FF1DB0] text-white rounded-xl flex items-center justify-center active:bg-[#d91694] touch-manipulation shadow-sm"
+          onClick={rotate}
+          aria-label="Rotate"
+        >
+          <RotateCw size={24} />
+        </button>
       </div>
     </div>
   );
