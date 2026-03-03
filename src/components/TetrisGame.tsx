@@ -196,6 +196,7 @@ export default function TetrisGame() {
   const [activePiece, setActivePiece] = useState<Piece>(createPiece());
   const [gameOver, setGameOver] = useState(false);
   const [gameWon, setGameWon] = useState(false);
+  const [gameStarted, setGameStarted] = useState(false);
   const [foundWords, setFoundWords] = useState<string[]>([]);
   const gameLoopRef = useRef<NodeJS.Timeout | null>(null);
   
@@ -208,6 +209,11 @@ export default function TetrisGame() {
     }
     return colorQueue.current.pop()!;
   }, []);
+
+  const startGame = () => {
+    setGameStarted(true);
+    resetGame();
+  };
 
   const resetGame = () => {
     setBoard(Array.from({ length: ROWS }, () => Array(COLS).fill(null)));
@@ -296,7 +302,7 @@ export default function TetrisGame() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (gameOver || gameWon) return;
+      if (!gameStarted || gameOver || gameWon) return;
       
       switch (e.key) {
         case 'ArrowLeft': move(-1, 0); break;
@@ -309,14 +315,14 @@ export default function TetrisGame() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [move, rotate, gameOver, gameWon]);
+  }, [move, rotate, gameOver, gameWon, gameStarted]);
 
   useEffect(() => {
-    if (gameOver || gameWon) return;
+    if (!gameStarted || gameOver || gameWon) return;
     const tick = () => move(0, 1);
     gameLoopRef.current = setInterval(tick, TICK_RATE);
     return () => { if (gameLoopRef.current) clearInterval(gameLoopRef.current); };
-  }, [move, gameOver, gameWon]);
+  }, [move, gameOver, gameWon, gameStarted]);
 
   // --- Rendering ---
 
@@ -444,6 +450,35 @@ export default function TetrisGame() {
         </div>
 
         <AnimatePresence>
+          {!gameStarted && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-40 flex flex-col items-center justify-center text-center p-6 bg-white"
+            >
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="relative z-10 flex flex-col items-center gap-8"
+              >
+                <h2 className="text-xl font-bold text-black leading-relaxed break-keep">
+                  테트리스를 쌓아<br/>
+                  NODE TO NOD 를<br/>
+                  연결해보세요
+                </h2>
+                
+                <button 
+                  onClick={startGame}
+                  className="px-8 py-3 bg-black text-white text-sm font-bold hover:bg-gray-800 transition-colors rounded-full tracking-widest"
+                >
+                  START
+                </button>
+              </motion.div>
+            </motion.div>
+          )}
+
           {gameOver && (
             <motion.div 
               initial={{ opacity: 0 }}
@@ -502,34 +537,34 @@ export default function TetrisGame() {
       </div>
 
       {/* Mobile Controls */}
-      <div className="grid grid-cols-4 gap-3 w-full max-w-[260px] -mt-12 sm:hidden relative z-20">
+      <div className="grid grid-cols-4 gap-2 w-full max-w-[200px] -mt-20 sm:hidden relative z-20">
         <button 
-          className="aspect-square bg-black text-white rounded-xl flex items-center justify-center active:bg-gray-800 touch-manipulation shadow-sm"
+          className="aspect-square bg-black text-white flex items-center justify-center active:bg-gray-800 touch-manipulation shadow-sm"
           onClick={() => move(-1, 0)}
           aria-label="Left"
         >
-          <ArrowLeft size={24} />
+          <ArrowLeft size={20} />
         </button>
         <button 
-          className="aspect-square bg-black text-white rounded-xl flex items-center justify-center active:bg-gray-800 touch-manipulation shadow-sm"
+          className="aspect-square bg-black text-white flex items-center justify-center active:bg-gray-800 touch-manipulation shadow-sm"
           onClick={() => move(0, 1)}
           aria-label="Down"
         >
-          <ArrowDown size={24} />
+          <ArrowDown size={20} />
         </button>
         <button 
-          className="aspect-square bg-black text-white rounded-xl flex items-center justify-center active:bg-gray-800 touch-manipulation shadow-sm"
+          className="aspect-square bg-black text-white flex items-center justify-center active:bg-gray-800 touch-manipulation shadow-sm"
           onClick={() => move(1, 0)}
           aria-label="Right"
         >
-          <ArrowRight size={24} />
+          <ArrowRight size={20} />
         </button>
         <button 
-          className="aspect-square bg-[#FF1DB0] text-white rounded-xl flex items-center justify-center active:bg-[#d91694] touch-manipulation shadow-sm"
+          className="aspect-square bg-[#FF1DB0] text-white flex items-center justify-center active:bg-[#d91694] touch-manipulation shadow-sm"
           onClick={rotate}
           aria-label="Rotate"
         >
-          <RotateCw size={24} />
+          <RotateCw size={20} />
         </button>
       </div>
     </div>
