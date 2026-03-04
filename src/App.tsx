@@ -7,32 +7,33 @@ import React from 'react';
 import TetrisGame from './components/TetrisGame';
 
 export default function App() {
+  const [isHintOpen, setIsHintOpen] = React.useState(false);
+
   return (
     <div className="h-[100dvh] bg-white text-black font-sans p-4 flex flex-col relative overflow-hidden selection:bg-black selection:text-white">
       
       {/* Top Section */}
       <div className="flex justify-between items-start w-full max-w-md mx-auto mb-2 shrink-0">
         
-        {/* Top Left: Color Bars */}
-        <div className="flex gap-0 h-3 w-24 sm:h-4 sm:w-32">
-          <div className="flex-1 bg-[#FF00FF]"></div> {/* Magenta */}
-          <div className="flex-1 bg-[#89CFF0]"></div> {/* Light Blue */}
-          <div className="flex-1 bg-[#00FF00]"></div> {/* Green */}
-          <div className="flex-1 bg-[#00FFFF]"></div> {/* Cyan */}
-          <div className="flex-1 bg-black"></div>      {/* Black */}
-        </div>
+        {/* Top Left: Hint Button */}
+        <button
+          onClick={() => setIsHintOpen(prev => !prev)}
+          className="bg-black text-white px-3 h-8 flex items-center justify-center text-sm font-bold hover:bg-gray-800 transition-colors rounded-none"
+        >
+          Hint
+        </button>
 
         {/* Top Right: Title Text Blocks */}
         <div className="flex flex-col items-end gap-1.5">
           <div className="flex gap-1.5">
-            <div className="bg-black text-white px-2 py-0.5 text-lg sm:text-xl font-bold tracking-widest">
+            <div className="bg-black text-white px-3 h-8 flex items-center justify-center text-sm font-bold tracking-widest">
               노드
             </div>
-            <div className="bg-black text-white px-2 py-0.5 text-lg sm:text-xl font-bold tracking-widest">
+            <div className="bg-black text-white px-3 h-8 flex items-center justify-center text-sm font-bold tracking-widest">
               투
             </div>
           </div>
-          <div className="bg-black text-white px-2 py-0.5 text-lg sm:text-xl font-bold tracking-widest self-end">
+          <div className="bg-black text-white px-3 h-8 flex items-center justify-center text-sm font-bold tracking-widest self-end">
             노드
           </div>
         </div>
@@ -42,7 +43,7 @@ export default function App() {
       <div className="flex-1 flex flex-col items-center justify-center w-full max-w-md mx-auto relative z-10 min-h-0">
         {/* The "Frame" container for the game */}
         <div className="relative p-1 origin-center">
-           <TetrisGame />
+           <TetrisGame isHintOpen={isHintOpen} setIsHintOpen={setIsHintOpen} />
         </div>
       </div>
 

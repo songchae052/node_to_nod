@@ -10,7 +10,7 @@ const BLOCK_SIZE = 28;
 const TICK_RATE = 1000;
 
 const CHAR_POOL = ['n', 'n', 'o', 'o', 'o', 'd', 'd', 'e', 't']; // Weighted
-const TARGET_WORDS = ['nod', 'to', 'node'];
+const TARGET_WORDS = ['node', 'to', 'nod'];
 const HIGHLIGHT_COLORS = ['#8FF1FC', '#FF1DB0', '#A2C6F8', '#9FF63B'];
 
 // Custom Shape Mask (1 = Valid Play Area, 0 = Wall/Empty)
@@ -189,7 +189,12 @@ const checkAndHighlightWords = (board: (Cell | null)[][], getNextColor: () => st
 
 // --- Component ---
 
-export default function TetrisGame() {
+interface TetrisGameProps {
+  isHintOpen: boolean;
+  setIsHintOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export default function TetrisGame({ isHintOpen, setIsHintOpen }: TetrisGameProps) {
   const [board, setBoard] = useState<(Cell | null)[][]>(
     Array.from({ length: ROWS }, () => Array(COLS).fill(null))
   );
@@ -221,7 +226,12 @@ export default function TetrisGame() {
     setGameOver(false);
     setGameWon(false);
     setFoundWords([]);
+    setIsHintOpen(false);
     colorQueue.current = []; // Reset color queue
+  };
+
+  const toggleHint = () => {
+    setIsHintOpen(prev => !prev);
   };
 
   // --- Game Logic ---
@@ -452,6 +462,7 @@ export default function TetrisGame() {
         <AnimatePresence>
           {!gameStarted && (
             <motion.div 
+              key="start-screen"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -479,8 +490,73 @@ export default function TetrisGame() {
             </motion.div>
           )}
 
+          {isHintOpen && !gameOver && (
+            <motion.div 
+              key="hint-screen"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-50 flex flex-col items-center justify-center text-center p-6"
+            >
+              {/* Masked Background */}
+              <div 
+                className="absolute inset-0 bg-white"
+                style={{ 
+                  maskImage: maskImage,
+                  WebkitMaskImage: maskImage,
+                  maskSize: '100% 100%',
+                  WebkitMaskSize: '100% 100%'
+                }}
+              />
+
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="relative z-10 flex flex-col items-center gap-6"
+              >
+                {/* Title Section */}
+                <div>
+                  <h2 className="text-3xl font-black uppercase tracking-tighter mb-2 text-black">Node To Nod</h2>
+                  <div className="text-[10px] font-bold text-gray-500 leading-tight space-y-0.5">
+                    <p>국민대 AI 디자인 Synapse</p>
+                    <p>x</p>
+                    <p>홍익대 산업디자인 Cre8</p>
+                  </div>
+                </div>
+                
+                {/* Info Section */}
+                <div className="text-[11px] space-y-1 leading-tight text-black">
+                  <p className="font-medium">서울 중구 을지로 108 2층 페이지 메일</p>
+                  <p className="font-bold">2026.03.17. - 21.</p>
+                  <p className="font-medium">@synapse_kmu</p>
+                </div>
+
+                <div className="flex gap-3 mt-4">
+                  <button 
+                    onClick={() => {
+                      resetGame();
+                      // Game is reset, isHintOpen becomes false in resetGame
+                      setGameStarted(true); // Ensure game starts after reset if it was paused
+                    }}
+                    className="px-6 py-2 bg-black text-white text-xs font-bold hover:bg-gray-800 transition-colors rounded-full"
+                  >
+                    다시하기
+                  </button>
+                  <button 
+                    onClick={toggleHint}
+                    className="px-6 py-2 border border-black text-black text-xs font-bold hover:bg-gray-100 transition-colors rounded-full"
+                  >
+                    이어하기
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+
           {gameOver && (
             <motion.div 
+              key="game-over-screen"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
