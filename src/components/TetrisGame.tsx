@@ -308,6 +308,67 @@ export default function TetrisGame({ isHintOpen, setIsHintOpen }: TetrisGameProp
     }
   }, [activePiece, board, gameOver, gameWon]);
 
+  // --- Continuous Down Movement Logic ---
+  const moveRef = useRef(move);
+  useEffect(() => {
+    moveRef.current = move;
+  }, [move]);
+
+  const downIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const leftIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const rightIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleDownStart = (e: React.TouchEvent | React.MouseEvent) => {
+    if (gameOver || gameWon) return;
+    if (downIntervalRef.current) return;
+
+    move(0, 1);
+    downIntervalRef.current = setInterval(() => {
+      moveRef.current(0, 1);
+    }, 80);
+  };
+
+  const handleDownEnd = () => {
+    if (downIntervalRef.current) {
+      clearInterval(downIntervalRef.current);
+      downIntervalRef.current = null;
+    }
+  };
+
+  const handleLeftStart = (e: React.TouchEvent | React.MouseEvent) => {
+    if (gameOver || gameWon) return;
+    if (leftIntervalRef.current) return;
+
+    move(-1, 0);
+    leftIntervalRef.current = setInterval(() => {
+      moveRef.current(-1, 0);
+    }, 100);
+  };
+
+  const handleLeftEnd = () => {
+    if (leftIntervalRef.current) {
+      clearInterval(leftIntervalRef.current);
+      leftIntervalRef.current = null;
+    }
+  };
+
+  const handleRightStart = (e: React.TouchEvent | React.MouseEvent) => {
+    if (gameOver || gameWon) return;
+    if (rightIntervalRef.current) return;
+
+    move(1, 0);
+    rightIntervalRef.current = setInterval(() => {
+      moveRef.current(1, 0);
+    }, 100);
+  };
+
+  const handleRightEnd = () => {
+    if (rightIntervalRef.current) {
+      clearInterval(rightIntervalRef.current);
+      rightIntervalRef.current = null;
+    }
+  };
+
   // --- Controls ---
 
   useEffect(() => {
@@ -482,7 +543,7 @@ export default function TetrisGame({ isHintOpen, setIsHintOpen }: TetrisGameProp
                 
                 <button 
                   onClick={startGame}
-                  className="px-8 py-3 bg-black text-white text-sm font-bold hover:bg-gray-800 transition-colors rounded-full tracking-widest"
+                  className="px-8 py-3 bg-black text-white text-sm font-bold hover:bg-gray-800 transition-colors tracking-widest"
                 >
                   START
                 </button>
@@ -530,6 +591,7 @@ export default function TetrisGame({ isHintOpen, setIsHintOpen }: TetrisGameProp
                   <p className="font-medium">서울 중구 을지로 108 2층 페이지 메일</p>
                   <p className="font-bold">2026.03.17. - 21.</p>
                   <p className="font-medium">@synapse_kmu</p>
+                  <p className="font-medium">@wedocre8</p>
                 </div>
 
                 <div className="flex gap-3 mt-4">
@@ -539,13 +601,13 @@ export default function TetrisGame({ isHintOpen, setIsHintOpen }: TetrisGameProp
                       // Game is reset, isHintOpen becomes false in resetGame
                       setGameStarted(true); // Ensure game starts after reset if it was paused
                     }}
-                    className="px-6 py-2 bg-black text-white text-xs font-bold hover:bg-gray-800 transition-colors rounded-full"
+                    className="px-6 py-2 bg-black text-white text-xs font-bold hover:bg-gray-800 transition-colors"
                   >
                     다시하기
                   </button>
                   <button 
                     onClick={toggleHint}
-                    className="px-6 py-2 border border-black text-black text-xs font-bold hover:bg-gray-100 transition-colors rounded-full"
+                    className="px-6 py-2 border border-black text-black text-xs font-bold hover:bg-gray-100 transition-colors"
                   >
                     이어하기
                   </button>
@@ -597,11 +659,12 @@ export default function TetrisGame({ isHintOpen, setIsHintOpen }: TetrisGameProp
                   <p className="text-white font-medium">서울 중구 을지로 108 2층 페이지 메일</p>
                   <p className="text-white font-bold">2026.03.17. - 21.</p>
                   <p className="text-white font-medium">@synapse_kmu</p>
+                  <p className="text-white font-medium">@wedocre8</p>
                 </div>
 
                 <button 
                   onClick={resetGame}
-                  className="inline-flex items-center gap-2 px-6 py-2 bg-white text-black text-xs font-bold hover:bg-gray-200 transition-colors rounded-full mt-2"
+                  className="inline-flex items-center gap-2 px-6 py-2 bg-white text-black text-xs font-bold hover:bg-gray-200 transition-colors mt-2"
                 >
                   <RefreshCw size={12} />
                   {gameWon ? 'PLAY AGAIN' : 'RETRY'}
@@ -615,22 +678,34 @@ export default function TetrisGame({ isHintOpen, setIsHintOpen }: TetrisGameProp
       {/* Mobile Controls */}
       <div className="grid grid-cols-4 gap-2 w-full max-w-[200px] -mt-20 sm:hidden relative z-20">
         <button 
-          className="aspect-square bg-black text-white flex items-center justify-center active:bg-gray-800 touch-manipulation shadow-sm"
-          onClick={() => move(-1, 0)}
+          className="aspect-square bg-black text-white flex items-center justify-center active:bg-gray-800 touch-none shadow-sm select-none"
+          onMouseDown={handleLeftStart}
+          onMouseUp={handleLeftEnd}
+          onMouseLeave={handleLeftEnd}
+          onTouchStart={handleLeftStart}
+          onTouchEnd={handleLeftEnd}
           aria-label="Left"
         >
           <ArrowLeft size={20} />
         </button>
         <button 
-          className="aspect-square bg-black text-white flex items-center justify-center active:bg-gray-800 touch-manipulation shadow-sm"
-          onClick={() => move(0, 1)}
+          className="aspect-square bg-black text-white flex items-center justify-center active:bg-gray-800 touch-none shadow-sm select-none"
+          onMouseDown={handleDownStart}
+          onMouseUp={handleDownEnd}
+          onMouseLeave={handleDownEnd}
+          onTouchStart={handleDownStart}
+          onTouchEnd={handleDownEnd}
           aria-label="Down"
         >
           <ArrowDown size={20} />
         </button>
         <button 
-          className="aspect-square bg-black text-white flex items-center justify-center active:bg-gray-800 touch-manipulation shadow-sm"
-          onClick={() => move(1, 0)}
+          className="aspect-square bg-black text-white flex items-center justify-center active:bg-gray-800 touch-none shadow-sm select-none"
+          onMouseDown={handleRightStart}
+          onMouseUp={handleRightEnd}
+          onMouseLeave={handleRightEnd}
+          onTouchStart={handleRightStart}
+          onTouchEnd={handleRightEnd}
           aria-label="Right"
         >
           <ArrowRight size={20} />
