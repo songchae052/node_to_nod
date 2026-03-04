@@ -422,11 +422,11 @@ export default function TetrisGame({ isHintOpen, setIsHintOpen }: TetrisGameProp
         }}
       >
         <svg 
-          className="absolute inset-0 pointer-events-none z-50"
+          className="absolute inset-0 pointer-events-none z-[60]"
           width={COLS * BLOCK_SIZE}
           height={ROWS * BLOCK_SIZE}
         >
-          <path d={borderPath} stroke="black" strokeWidth="1.5" fill="none" />
+          <path d={borderPath} stroke="black" strokeWidth="2.5" fill="none" />
         </svg>
 
         <div 
