@@ -426,7 +426,7 @@ export default function TetrisGame({ isHintOpen, setIsHintOpen }: TetrisGameProp
           width={COLS * BLOCK_SIZE}
           height={ROWS * BLOCK_SIZE}
         >
-          <path d={borderPath} stroke="black" strokeWidth="2.5" fill="none" />
+          <path d={borderPath} stroke="black" strokeWidth="2" fill="none" />
         </svg>
 
         <div 
