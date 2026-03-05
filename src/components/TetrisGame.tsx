@@ -315,20 +315,29 @@ export default function TetrisGame({ isHintOpen, setIsHintOpen }: TetrisGameProp
   }, [move]);
 
   const downIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const downTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const leftIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const leftTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const rightIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const rightTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleDownStart = (e: React.TouchEvent | React.MouseEvent) => {
     if (gameOver || gameWon) return;
-    if (downIntervalRef.current) return;
+    if (downIntervalRef.current || downTimeoutRef.current) return;
 
     move(0, 1);
-    downIntervalRef.current = setInterval(() => {
-      moveRef.current(0, 1);
-    }, 80);
+    downTimeoutRef.current = setTimeout(() => {
+      downIntervalRef.current = setInterval(() => {
+        moveRef.current(0, 1);
+      }, 80);
+    }, 200);
   };
 
   const handleDownEnd = () => {
+    if (downTimeoutRef.current) {
+      clearTimeout(downTimeoutRef.current);
+      downTimeoutRef.current = null;
+    }
     if (downIntervalRef.current) {
       clearInterval(downIntervalRef.current);
       downIntervalRef.current = null;
@@ -337,15 +346,21 @@ export default function TetrisGame({ isHintOpen, setIsHintOpen }: TetrisGameProp
 
   const handleLeftStart = (e: React.TouchEvent | React.MouseEvent) => {
     if (gameOver || gameWon) return;
-    if (leftIntervalRef.current) return;
+    if (leftIntervalRef.current || leftTimeoutRef.current) return;
 
     move(-1, 0);
-    leftIntervalRef.current = setInterval(() => {
-      moveRef.current(-1, 0);
-    }, 100);
+    leftTimeoutRef.current = setTimeout(() => {
+      leftIntervalRef.current = setInterval(() => {
+        moveRef.current(-1, 0);
+      }, 100);
+    }, 200);
   };
 
   const handleLeftEnd = () => {
+    if (leftTimeoutRef.current) {
+      clearTimeout(leftTimeoutRef.current);
+      leftTimeoutRef.current = null;
+    }
     if (leftIntervalRef.current) {
       clearInterval(leftIntervalRef.current);
       leftIntervalRef.current = null;
@@ -354,15 +369,21 @@ export default function TetrisGame({ isHintOpen, setIsHintOpen }: TetrisGameProp
 
   const handleRightStart = (e: React.TouchEvent | React.MouseEvent) => {
     if (gameOver || gameWon) return;
-    if (rightIntervalRef.current) return;
+    if (rightIntervalRef.current || rightTimeoutRef.current) return;
 
     move(1, 0);
-    rightIntervalRef.current = setInterval(() => {
-      moveRef.current(1, 0);
-    }, 100);
+    rightTimeoutRef.current = setTimeout(() => {
+      rightIntervalRef.current = setInterval(() => {
+        moveRef.current(1, 0);
+      }, 100);
+    }, 200);
   };
 
   const handleRightEnd = () => {
+    if (rightTimeoutRef.current) {
+      clearTimeout(rightTimeoutRef.current);
+      rightTimeoutRef.current = null;
+    }
     if (rightIntervalRef.current) {
       clearInterval(rightIntervalRef.current);
       rightIntervalRef.current = null;
