@@ -330,7 +330,7 @@ export default function TetrisGame({ isHintOpen, setIsHintOpen }: TetrisGameProp
       downIntervalRef.current = setInterval(() => {
         moveRef.current(0, 1);
       }, 80);
-    }, 200);
+    }, 400);
   };
 
   const handleDownEnd = () => {
@@ -353,7 +353,7 @@ export default function TetrisGame({ isHintOpen, setIsHintOpen }: TetrisGameProp
       leftIntervalRef.current = setInterval(() => {
         moveRef.current(-1, 0);
       }, 100);
-    }, 200);
+    }, 400);
   };
 
   const handleLeftEnd = () => {
@@ -376,7 +376,7 @@ export default function TetrisGame({ isHintOpen, setIsHintOpen }: TetrisGameProp
       rightIntervalRef.current = setInterval(() => {
         moveRef.current(1, 0);
       }, 100);
-    }, 200);
+    }, 400);
   };
 
   const handleRightEnd = () => {
